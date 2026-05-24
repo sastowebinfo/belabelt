@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — Bela Belt Coffee</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:    #4E342E;
+      --primary-dark:#321a16;
+      --gold:       #D4A853;
+      --accent:     #C8A97E;
+      --bg-dark:    #1a0f0c;
+      --bg-card:    #2a1a16;
+      --secondary:  #D7CCC8;
+      --muted:      #a89090;
+      --white:      #ffffff;
+      --danger:     #e57373;
+      --success:    #81c784;
+      --radius:     12px;
+      --shadow:     0 8px 32px rgba(0,0,0,0.45);
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { font-size:16px; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-dark);
+      color: var(--secondary);
+      min-height: 100vh;
+    }
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius:3px; }
+
+    /* ── SIDEBAR ── */
+    .layout { display:flex; min-height:100vh; }
+    .sidebar {
+      width: 240px;
+      background: var(--primary-dark);
+      border-right: 1px solid rgba(212,168,83,0.12);
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 1.5rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--gold);
+      margin-bottom: 0.3rem;
+    }
+    .sidebar-sub { font-size:0.72rem; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:2.5rem; }
+    .sidebar-nav { display:flex; flex-direction:column; gap:0.4rem; }
+    .nav-item {
+      display:flex; align-items:center; gap:10px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .nav-item:hover, .nav-item.active {
+      background: rgba(212,168,83,0.12);
+      color: var(--gold);
+    }
+    .nav-item .icon { font-size:1.1rem; }
+    .sidebar-footer { margin-top:auto; font-size:0.75rem; color:var(--muted); padding-top:2rem; }
+    .sidebar-footer a { color:var(--gold); text-decoration:none; }
+
+    /* ── MAIN ── */
+    .main { flex:1; padding:2.5rem 3%; overflow:auto; }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .topbar-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--white);
+    }
+    .topbar-actions { display:flex; gap:0.8rem; flex-wrap:wrap; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      padding:10px 22px;
+      border:none; border-radius:50px;
+      font-family:'Poppins',sans-serif; font-size:0.82rem; font-weight:600;
+      letter-spacing:0.5px; cursor:pointer; transition:all 0.3s ease;
+    }
+    .btn-gold {
+      background: var(--gold); color: var(--primary-dark);
+      box-shadow: 0 4px 16px rgba(212,168,83,0.3);
+    }
+    .btn-gold:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(212,168,83,0.5); }
+    .btn-outline-gold {
+      background:transparent; color:var(--gold);
+      border:1.5px solid var(--gold);
+    }
+    .btn-outline-gold:hover { background: rgba(212,168,83,0.1); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover { transform:translateY(-2px); }
+    .btn-sm { padding:7px 16px; font-size:0.78rem; }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr));
+      gap:1rem; margin-bottom:2rem;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border:1px solid rgba(212,168,83,0.12);
+      border-radius: var(--radius);
+      padding:1.4rem 1.6rem;
+      position:relative; overflow:hidden;
+    }
+    .stat-card::before {
+      content:''; position:absolute; top:0; left:0; width:4px; height:100%;
+      background: var(--gold);
+    }
+    .stat-label { font-size:0.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:0.5rem; }
+    .stat-value { font-family:'Playfair Display',serif; font-size:2rem; color:var(--gold); line-height:1; }
+
+    /* ── TABS ── */
+    .tabs { display:flex; gap:0.5rem; margin-bottom:2rem; border-bottom:1px solid rgba(255,255,255,0.08); }
+    .tab {
+      padding:10px 24px; font-size:0.85rem; font-weight:500;
+      color:var(--muted); cursor:pointer; border:none; background:none;
+      border-bottom:2px solid transparent; margin-bottom:-1px;
+      font-family:'Poppins',sans-serif; transition:all 0.25s;
+    }
+    .tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+    .tab:hover { color:var(--secondary); }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    /* ── TABLE ── */
+    .table-wrap {
+      background: var(--bg-card);
+      border:1px solid rgba(212,168,83,0.12);
+      border-radius: var(--radius);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+    }
+    .table-toolbar {
+      padding:1.2rem 1.5rem;
+      display:flex; align-items:center; justify-content:space-between;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      flex-wrap:wrap; gap:1rem;
+    }
+    .table-toolbar h3 { font-size:1rem; font-weight:600; color:var(--white); }
+    .search-box {
+      display:flex; align-items:center; gap:8px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(212,168,83,0.2);
+      border-radius:50px; padding:8px 16px;
+    }
+    .search-box input {
+      background:none; border:none; outline:none;
+      color:var(--secondary); font-family:'Poppins',sans-serif;
+      font-size:0.83rem; width:200px;
+    }
+    .search-box input::placeholder { color:var(--muted); }
+    table { width:100%; border-collapse:collapse; }
+    thead tr { background:rgba(255,255,255,0.03); }
+    th {
+      padding:14px 16px; text-align:left;
+      font-size:0.72rem; font-weight:600; letter-spacing:1.5px;
+      text-transform:uppercase; color:var(--gold);
+      border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    td {
+      padding:14px 16px; font-size:0.85rem; color:var(--secondary);
+      border-bottom:1px solid rgba(255,255,255,0.04);
+      vertical-align:top;
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:rgba(212,168,83,0.04); }
+    .msg-cell { max-width:320px; color:var(--muted); font-size:0.82rem; line-height:1.6; }
+    .date-cell { font-size:0.78rem; color:var(--muted); white-space:nowrap; }
+    .badge {
+      display:inline-block; padding:3px 12px; border-radius:50px;
+      font-size:0.7rem; font-weight:600; background:rgba(212,168,83,0.15);
+      color:var(--gold); border:1px solid rgba(212,168,83,0.3);
+    }
+    .empty-state {
+      text-align:center; padding:4rem 2rem; color:var(--muted);
+    }
+    .empty-state .icon { font-size:3rem; margin-bottom:1rem; }
+    .empty-state p { font-size:0.9rem; }
+
+    .file-input-label:hover { background:rgba(212,168,83,0.22); }
+    .file-input { display:none; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(10,5,3,0.85); backdrop-filter:blur(6px);
+      z-index:2000; align-items:center; justify-content:center;
+    }
+    .modal-overlay.open { display:flex; }
+    .modal {
+      background:var(--bg-card);
+      border:1px solid rgba(212,168,83,0.2);
+      border-radius:var(--radius); padding:2.5rem;
+      max-width:520px; width:90%;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+    }
+    .modal h3 { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--white); margin-bottom:0.5rem; }
+    .modal p { font-size:0.85rem; color:var(--muted); margin-bottom:1.5rem; }
+    .modal-detail { font-size:0.88rem; color:var(--secondary); line-height:1.8; }
+    .modal-detail strong { color:var(--gold); }
+    .modal-actions { display:flex; gap:0.8rem; margin-top:2rem; justify-content:flex-end; }
+
+    /* ── TOAST ── */
+    #toast {
+      position:fixed; bottom:30px; right:30px;
+      background:var(--gold); color:var(--primary-dark);
+      padding:12px 24px; border-radius:50px;
+      font-size:0.85rem; font-weight:600;
+      opacity:0; transform:translateY(20px);
+      transition:all 0.35s ease; z-index:3000;
+      pointer-events:none;
+    }
+    #toast.show { opacity:1; transform:translateY(0); }
+
+    /* ── MOBILE NAV ── */
+    .nav-mobile {
+      display:none; 
+      background:var(--primary-dark); padding:1rem 1.5rem;
+      border-bottom:1px solid rgba(212,168,83,0.12);
+      position:sticky; top:0; z-index:1500;
+      justify-content:space-between; align-items:center;
+    }
+    .mobile-nav-items { display:flex; gap:0.5rem; }
+    .mobile-tab-btn {
+      padding:6px 14px; font-size:0.75rem; font-weight:600;
+      background:rgba(212,168,83,0.1); border:1px solid rgba(212,168,83,0.2);
+      border-radius:50px; color:var(--muted); cursor:pointer;
+    }
+    .mobile-tab-btn.active { background:var(--gold); color:var(--primary-dark); }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:900px) {
+      .sidebar { display:none; }
+      .nav-mobile { display:flex; }
+      .main { padding:1.5rem 1.2rem; }
+      .topbar { margin-top: 1rem; }
+      .topbar-title { font-size:1.4rem; }
+    }
+    @media(max-width:560px) {
+      .stats-row { grid-template-columns:1fr; }
+      .search-box input { width:100px; }
+      .topbar-actions { width: 100%; justify-content: space-between; gap: 0.5rem; }
+      .topbar-actions .btn { flex: 1; padding: 10px 0; text-align: center; font-size: 0.75rem; }
+      .modal { padding: 1.5rem; width: 95%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">Bela Belt</div>
+    <div class="sidebar-sub">Admin Panel</div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showTab('contacts')">
+        <span class="icon">✉️</span> Contact Messages
+      </div>
+      <div class="nav-item" onclick="showTab('products')">
+        <span class="icon">🛒</span> Product Manager
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="index.html">← Back to Website</a><br><br>
+      &copy; 2024 Bela Belt Coffee
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main" style="padding:0;">
+    <!-- Mobile Nav -->
+    <div class="nav-mobile">
+      <div class="sidebar-logo" style="margin-bottom:0; font-size:1.1rem;">Bela Belt</div>
+      <div class="mobile-nav-items">
+        <button class="mobile-tab-btn active" onclick="showTab('contacts')">✉️ Messages</button>
+        <button class="mobile-tab-btn" onclick="showTab('products')">🛒 Products</button>
+      </div>
+    </div>
+
+    <!-- Inner Padding Wrapper -->
+    <div style="padding: 2.5rem 3%;">
+      <!-- Topbar -->
+      <div class="topbar">
+      <div>
+        <div class="topbar-title" id="pageTitle">Contact Messages</div>
+      </div>
+      <div class="topbar-actions" id="topbarActions">
+        <button class="btn btn-outline-gold" onclick="exportCSV()" id="btn-export">⬇ Export CSV</button>
+        <button class="btn btn-danger" onclick="confirmClearAll()" id="btn-clear">🗑 Clear All</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card">
+        <div class="stat-label">Total Messages</div>
+        <div class="stat-value" id="sc-total">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">This Month</div>
+        <div class="stat-value" id="sc-month">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Today</div>
+        <div class="stat-value" id="sc-today">0</div>
+      </div>
+    </div>
+
+    <!-- Tabs (Hidden as only 1 tab now) -->
+    <div class="tabs" style="display:none;">
+      <button class="tab active">Contact Messages</button>
+    </div>
+
+    <!-- Tab: Contacts -->
+    <div class="tab-panel active" id="panel-contacts">
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <h3>All Submissions</h3>
+          <div class="search-box">
+            <span>🔍</span>
+            <input type="text" id="searchInput" placeholder="Search name, email…" oninput="filterTable()" />
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Message</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="contactTableBody"></tbody>
+          </table>
+        </div>
+        <div id="emptyState" class="empty-state" style="display:none;">
+          <div class="icon">📭</div>
+          <p>No messages yet. They'll appear here when visitors contact you.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Products -->
+    <div class="tab-panel" id="panel-products">
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <h3>Manage Products</h3>
+          <p style="font-size: 0.8rem; color: var(--muted);">Click edit to change name, price, or quantity.</p>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminProductsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <h3 id="modalTitle">Message Detail</h3>
+    <p id="modalSubtitle">Full contact submission from a visitor.</p>
+    <div class="modal-detail" id="modalContent"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline-gold" onclick="closeModal()">Close</button>
+      <button class="btn btn-danger btn-sm" id="modalDeleteBtn">Delete</button>
+      <button class="btn btn-gold btn-sm" id="modalSaveBtn" style="display:none;">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Clear All Confirm Modal -->
+<div class="modal-overlay" id="clearModal">
+  <div class="modal">
+    <h3>⚠️ Clear All Messages?</h3>
+    <p>This will permanently delete all contact form submissions. This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline-gold" onclick="closeClearModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="clearAll()">Yes, Delete All</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+/* ─── Data Helpers ─────────────────────────────────────── */
+function getContacts() {
+  try { return JSON.parse(localStorage.getItem('bb_contacts')) || []; }
+  catch { return []; }
+}
+
+/* ─── Toast ────────────────────────────────────────────── */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ─── Stats ────────────────────────────────────────────── */
+function updateStats() {
+  const data = getContacts();
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const today = now.toDateString();
+  const scTotal = document.getElementById('sc-total');
+  const scMonth = document.getElementById('sc-month');
+  const scToday = document.getElementById('sc-today');
+  if (scTotal) scTotal.textContent = data.length;
+  if (scMonth) scMonth.textContent = data.filter(d => { try { return new Date(d.id).getMonth() === thisMonth; } catch{return false;} }).length;
+  if (scToday) scToday.textContent = data.filter(d => { try { return new Date(d.id).toDateString() === today; } catch{return false;} }).length;
+}
+
+/* ─── Tabs ────────────────────────────────────────────── */
+function showTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.mobile-tab-btn').forEach(b => b.classList.remove('active'));
+  
+  if (tab === 'contacts') {
+    document.getElementById('panel-contacts').classList.add('active');
+    document.querySelectorAll('.nav-item')[0].classList.add('active');
+    document.querySelectorAll('.mobile-tab-btn')[0].classList.add('active');
+    document.getElementById('pageTitle').textContent = 'Contact Messages';
+    document.getElementById('topbarActions').style.display = 'flex';
+    document.getElementById('statsRow').style.display = 'grid';
+    renderTable(getContacts());
+  } else {
+    document.getElementById('panel-products').classList.add('active');
+    document.querySelectorAll('.nav-item')[1].classList.add('active');
+    document.querySelectorAll('.mobile-tab-btn')[1].classList.add('active');
+    document.getElementById('pageTitle').textContent = 'Product Manager';
+    document.getElementById('topbarActions').style.display = 'none';
+    document.getElementById('statsRow').style.display = 'none';
+    renderAdminProducts();
+  }
+}
+
+/* ─── Contact Table ────────────────────────────────────── */
+let currentDeleteId = null;
+
+function renderTable(data) {
+  const tbody = document.getElementById('contactTableBody');
+  const empty = document.getElementById('emptyState');
+  if (!tbody) return;
+  if (!data || data.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = data.map((entry, i) => `
+    <tr>
+      <td><span class="badge">${i + 1}</span></td>
+      <td style="font-weight:600; color:var(--white);">${escape(entry.name)}</td>
+      <td><a href="mailto:${entry.email}" style="color:var(--gold);">${escape(entry.email)}</a></td>
+      <td class="msg-cell">${escape(entry.message).substring(0, 100)}${entry.message.length > 100 ? '…' : ''}</td>
+      <td class="date-cell">${entry.date}</td>
+      <td>
+        <button class="btn btn-outline-gold btn-sm" onclick="openDetail('${entry.id}')">View</button>
+      </td>
+    </tr>`).join('');
+}
+
+function escape(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function filterTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const data = getContacts().filter(e =>
+    e.name.toLowerCase().includes(q) || e.email.toLowerCase().includes(q) || e.message.toLowerCase().includes(q)
+  );
+  renderTable(data);
+}
+
+function openDetail(id) {
+  const entry = getContacts().find(e => String(e.id) === String(id));
+  if (!entry) return;
+  currentDeleteId = id;
+  const modal = document.getElementById('detailModal');
+  const content = document.getElementById('modalContent');
+  const delBtn = document.getElementById('modalDeleteBtn');
+  const saveBtn = document.getElementById('modalSaveBtn');
+
+  document.getElementById('modalTitle').textContent = 'Message Detail';
+  document.getElementById('modalSubtitle').textContent = 'Full contact submission from a visitor.';
+  delBtn.style.display = 'block';
+  saveBtn.style.display = 'none';
+
+  content.innerHTML = `
+    <p><strong>Name:</strong> ${escape(entry.name)}</p>
+    <p><strong>Email:</strong> <a href="mailto:${entry.email}" style="color:var(--gold)">${escape(entry.email)}</a></p>
+    <p><strong>Date:</strong> ${entry.date}</p>
+    <p><strong>Message:</strong></p>
+    <p style="margin-top:8px; padding:14px; background:rgba(255,255,255,0.04); border-radius:8px; line-height:1.8; color:var(--secondary);">${escape(entry.message)}</p>`;
+  delBtn.onclick = () => deleteEntry(id);
+  modal.classList.add('open');
+}
+
+function closeModal() { document.getElementById('detailModal').classList.remove('open'); }
+
+function deleteEntry(id) {
+  let data = getContacts().filter(e => String(e.id) !== String(id));
+  localStorage.setItem('bb_contacts', JSON.stringify(data));
+  closeModal();
+  renderTable(getContacts());
+  updateStats();
+  showToast('Message deleted.');
+}
+
+function confirmClearAll() { document.getElementById('clearModal').classList.add('open'); }
+function closeClearModal() { document.getElementById('clearModal').classList.remove('open'); }
+function clearAll() {
+  localStorage.setItem('bb_contacts', JSON.stringify([]));
+  closeClearModal();
+  renderTable([]);
+  updateStats();
+  showToast('All messages cleared.');
+}
+
+function exportCSV() {
+  const data = getContacts();
+  if (!data.length) { showToast('No data to export.'); return; }
+  const header = ['#','Name','Email','Message','Date'];
+  const rows = data.map((e, i) => [i+1, e.name, e.email, e.message.replace(/\n/g,' '), e.date]);
+  const csv = [header, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'bela_belt_contacts.csv'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exported!');
+}
+
+/* ─── Products ────────────────────────────────────────── */
+const DEFAULT_PRODUCTS = [
+  { id: 1, name: 'Bela Belt Coffee', price: 'Rs. 2,250', quantity: '1000gm', img: 'images/product1.jpeg' },
+  { id: 2, name: 'Bela Belt Coffee', price: 'Rs. 1,150', quantity: '500gm', img: 'images/product2.jpeg' }
+];
+
+function getProducts() {
+  try {
+    const PRODUCTS_VERSION = 'v3_updated_prices';
+    if (localStorage.getItem('bb_products_version') !== PRODUCTS_VERSION) {
+      localStorage.setItem('bb_products_version', PRODUCTS_VERSION);
+      localStorage.removeItem('bb_products');
+    }
+    const stored = JSON.parse(localStorage.getItem('bb_products'));
+    return Array.isArray(stored) && stored.length > 0 ? stored : DEFAULT_PRODUCTS;
+  } catch { return DEFAULT_PRODUCTS; }
+}
+
+function saveProducts(data) {
+  localStorage.setItem('bb_products', JSON.stringify(data));
+}
+
+function renderAdminProducts() {
+  const data = getProducts();
+  const tbody = document.getElementById('adminProductsTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = data.map(p => `
+    <tr>
+      <td><img src="${p.img}" style="width:50px; height:50px; object-fit:cover; border-radius:4px; border:1px solid var(--gold);"></td>
+      <td style="font-weight:600; color:var(--white);">${escape(p.name)}</td>
+      <td>${escape(p.quantity)}</td>
+      <td>
+        <button class="btn btn-outline-gold btn-sm" onclick="openProductEdit(${p.id})">Edit</button>
+      </td>
+    </tr>`).join('');
+}
+
+function openProductEdit(id) {
+  const products = getProducts();
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+
+  const modal = document.getElementById('detailModal');
+  const title = document.getElementById('modalTitle');
+  const subtitle = document.getElementById('modalSubtitle');
+  const content = document.getElementById('modalContent');
+  const delBtn = document.getElementById('modalDeleteBtn');
+  const saveBtn = document.getElementById('modalSaveBtn');
+
+  title.textContent = 'Edit Product';
+  subtitle.textContent = 'Update product details for the website.';
+  delBtn.style.display = 'none';
+  saveBtn.style.display = 'block';
+
+  content.innerHTML = `
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+      <div>
+        <label style="display:block; font-size:0.75rem; color:var(--muted); margin-bottom:4px;">Product Name</label>
+        <input type="text" id="edit-p-name" value="${escape(p.name)}" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid var(--gold); border-radius:6px; color:white; outline:none;">
+      </div>
+      <div>
+        <label style="display:block; font-size:0.75rem; color:var(--muted); margin-bottom:4px;">Quantity (e.g. 500gm)</label>
+        <input type="text" id="edit-p-qty" value="${escape(p.quantity)}" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid var(--gold); border-radius:6px; color:white; outline:none;">
+      </div>
+    </div>
+  `;
+
+  saveBtn.onclick = () => {
+    p.name = document.getElementById('edit-p-name').value;
+    p.quantity = document.getElementById('edit-p-qty').value;
+    saveProducts(products);
+    closeModal();
+    renderAdminProducts();
+    showToast('Product updated successfully!');
+  };
+
+  modal.classList.add('open');
+}
+
+/* ─── Init ─────────────────────────────────────────────── */
+updateStats();
+renderTable(getContacts());
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Firebase local metadata
+.firebase/
+
+# Repo/tooling files
+.git/
+.gitignore
+
+# Node dependencies
+node_modules/
+
+# OS/editor files
+Thumbs.db
+Desktop.ini
